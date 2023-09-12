@@ -2,51 +2,48 @@ return {
   -- add symbols-outline
   {
     "neovim/nvim-lspconfig",
-    dependencies = { "jose-elias-alvarez/typescript.nvim" },
+    dependencies = { "jose-elias-alvarez/typescript.nvim","b0o/SchemaStore.nvim", },
     opts = {
-      -- options for vim.diagnostic.config()
-      diagnostics = {
+		-- options for vim.diagnostic.config()
+		diagnostics = {
         underline = true,
         update_in_insert = false,
         virtual_text = {
-          spacing = 4,
-          source = "if_many",
-          prefix = "●",
-          -- this will set set the prefix to a function that returns the diagnostics icon based on the severity
-          -- this only works on a recent 0.10.0 build. Will be set to "●" when not supported
-          prefix = "icons",
+			spacing = 4,
+			source = "if_many",
+			-- prefix = "●", -- default
+			-- this will set set the prefix to a function that returns the diagnostics icon based on the severity
+			-- this only works on a recent 0.10.0 build. Will be set to "●" when not supported
+			prefix = "icons",
         },
         severity_sort = true,
-      },
-      -- Enable this to enable the builtin LSP inlay hints on Neovim >= 0.10.0
-      -- Be aware that you also will need to properly configure your LSP server to
-      -- provide the inlay hints.
-      inlay_hints = {
+    },
+    -- Enable this to enable the builtin LSP inlay hints on Neovim >= 0.10.0
+    inlay_hints = {
         enabled = true,
-      },
-      -- add any global capabilities here
-      capabilities = {},
-      -- Automatically format on save
-      autoformat = false,
-      -- Enable this to show formatters used in a notification
-      -- Useful for debugging formatter issues
-      format_notify = true,
-      -- options for vim.lsp.buf.format
-      -- `bufnr` and `filter` is handled by the LazyVim formatter,
-      -- but can be also overridden when specified
-      format = {
+    },
+    -- add any global capabilities here
+    capabilities = {},
+    -- Automatically format on save
+    autoformat = false,
+    -- Enable this to show formatters used in a notification
+    format_notify = true,
+    -- options for vim.lsp.buf.format
+    -- `bufnr` and `filter` is handled by the LazyVim formatter,
+    -- but can be also overridden when specified
+    format = {
         formatting_options = nil,
         timeout_ms = nil,
-      },
-      -- LSP Server Settings
-      ---@type lspconfig.options
-      servers = {
+    },
+    -- LSP Server Settings
+    ---@type lspconfig.options
+    servers = {
         ---@type lspconfig.options.tsserver
         tsserver = {
-          keys = {
-            { "<leader>co", "<cmd>TypescriptOrganizeImports<CR>", desc = "Organize Imports" },
-            { "<leader>cR", "<cmd>TypescriptRenameFile<CR>", desc = "Rename File" },
-          },
+			keys = {
+				{ "<leader>co", "<cmd>TypescriptOrganizeImports<CR>", desc = "Organize Imports" },
+				{ "<leader>cR", "<cmd>TypescriptRenameFile<CR>", desc = "Rename File" },
+			},
           settings = {
             eslint = { settings = { workingDirectory = { mode = "auto" } } },
             typescript = {
@@ -68,8 +65,21 @@ return {
             },
           },
         },
-        jsonls = {},
-        lua_ls = {
+        
+		jsonls = {
+			on_new_config = function (new_config)
+				new_config.settings.json.schemas = new_config.settings.json.schemas or {}
+				vim.list_extend(new_config.settings.json.schemas, require("schemastore").json.schemas())
+			end,
+			settings = {
+				json = {
+					format = { enable = true },
+					validate = { enable = true },
+				}
+			},
+		},
+        
+		lua_ls = {
           -- mason = false, -- set to false if you don't want this server to be installed with mason
           -- Use this to add any additional keymaps
           -- for specific lsp servers
