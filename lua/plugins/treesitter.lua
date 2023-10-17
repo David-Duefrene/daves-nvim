@@ -9,6 +9,6 @@ return {
 				"json5",
 				"jsonc",
 			})
-    end
-  end,
+		end
+	end,
 }
